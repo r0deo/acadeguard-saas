@@ -1,26 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using AcademicCompliance.Application.DTOs.Auth;
+using AcademicCompliance.Application.Interfaces;
 using AcademicCompliance.Application.Interfaces.Auth;
 using AcademicCompliance.Domain.Common;
 using AcademicCompliance.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace AcademicCompliance.Application.Services.Auth;
 
 public sealed class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IApplicationDbContext _dbContext;
     private readonly ICurrentUserService _currentUserService;
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IAuthRequestValidator _validator;
 
     public AuthService(
         UserManager<ApplicationUser> userManager,
+        IApplicationDbContext dbContext,
         ICurrentUserService currentUserService,
         IJwtTokenService jwtTokenService,
         IAuthRequestValidator validator)
     {
         _userManager = userManager;
+        _dbContext = dbContext;
         _currentUserService = currentUserService;
         _jwtTokenService = jwtTokenService;
         _validator = validator;
@@ -73,6 +78,16 @@ public sealed class AuthService : IAuthService
         if (existingUser is not null)
         {
             throw new ValidationException("Email is already registered.");
+        }
+
+        var organizationExists = await _dbContext.Organizations.AnyAsync(organization =>
+            organization.Id == request.OrganizationId
+            && organization.IsActive,
+            cancellationToken);
+
+        if (!organizationExists)
+        {
+            throw new ValidationException("Organization was not found or is inactive.");
         }
 
         var user = new ApplicationUser

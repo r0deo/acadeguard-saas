@@ -10,6 +10,8 @@ namespace AcademicCompliance.Infrastructure.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
+    public DbSet<Organization> Organizations => Set<Organization>();
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyEntityTimestamps();
@@ -44,6 +46,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
             builder.Property(user => user.CreatedAt)
                 .HasDefaultValueSql("NOW()");
+
+            builder.HasOne<Organization>()
+                .WithMany()
+                .HasForeignKey(user => user.OrganizationId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         if (HasEntityTypeConfigurations())

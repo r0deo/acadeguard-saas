@@ -18,6 +18,28 @@ Authorization: Bearer {{admin_token}}
 
 ###
 
+GET {{AcademicCompliance.Api_HostAddress}}/api/organizations?search=college&isActive=true
+Authorization: Bearer {{admin_token}}
+Accept: application/json
+
+###
+
+POST {{AcademicCompliance.Api_HostAddress}}/api/organizations
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "Example College",
+  "officialEmail": "compliance@example.edu",
+  "logoUrl": "https://example.edu/logo.png",
+  "contactPersonName": "Compliance Officer",
+  "contactPersonEmail": "officer@example.edu",
+  "phoneNumber": "+1-555-0100",
+  "address": "100 Academic Way"
+}
+
+###
+
 POST {{AcademicCompliance.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 

@@ -38,6 +38,14 @@ public sealed class GlobalExceptionHandlingMiddleware
                 "Unauthorized.",
                 exception.Message);
         }
+        catch (KeyNotFoundException exception)
+        {
+            await WriteProblemDetailsAsync(
+                context,
+                StatusCodes.Status404NotFound,
+                "Not found.",
+                exception.Message);
+        }
         catch (Exception exception)
         {
             _logger.LogError(exception, "Unhandled exception while processing {Method} {Path}.",
