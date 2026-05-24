@@ -4,6 +4,7 @@ using AcademicCompliance.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using PaymentEntity = AcademicCompliance.Domain.Entities.Payment;
 
 namespace AcademicCompliance.Infrastructure.Data;
 
@@ -11,6 +12,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
     public DbSet<Organization> Organizations => Set<Organization>();
+
+    public DbSet<Subscription> Subscriptions => Set<Subscription>();
+
+    public DbSet<PaymentEntity> Payments => Set<PaymentEntity>();
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
