@@ -11,5 +11,13 @@ public interface IApplicationDbContext
 
     DbSet<Payment> Payments { get; }
 
+    DbSet<MinistryStandard> MinistryStandards { get; }
+
+    DbSet<MinistryRequirement> MinistryRequirements { get; }
+
+    DbSet<MinistryClause> MinistryClauses { get; }
+
+    DbSet<MinistryBranch> MinistryBranches { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -17,6 +17,14 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<PaymentEntity> Payments => Set<PaymentEntity>();
 
+    public DbSet<MinistryStandard> MinistryStandards => Set<MinistryStandard>();
+
+    public DbSet<MinistryRequirement> MinistryRequirements => Set<MinistryRequirement>();
+
+    public DbSet<MinistryClause> MinistryClauses => Set<MinistryClause>();
+
+    public DbSet<MinistryBranch> MinistryBranches => Set<MinistryBranch>();
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyEntityTimestamps();
