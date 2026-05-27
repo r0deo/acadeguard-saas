@@ -1,0 +1,18 @@
+namespace AcademicCompliance.Application.DTOs.Standards;
+
+public sealed class StandardListItemResponse
+{
+    public Guid Id { get; init; }
+
+    public int Number { get; init; }
+
+    public string? TitleArabic { get; init; }
+
+    public string? TitleEnglish { get; init; }
+
+    public bool IsActive { get; init; }
+
+    public DateTime CreatedAt { get; init; }
+
+    public DateTime? UpdatedAt { get; init; }
+}
