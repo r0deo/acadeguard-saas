@@ -11,10 +11,14 @@ namespace AcademicCompliance.Api.Controllers;
 public sealed class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IOrganizationRegistrationService _registrationService;
 
-    public AuthController(IAuthService authService)
+    public AuthController(
+        IAuthService authService,
+        IOrganizationRegistrationService registrationService)
     {
         _authService = authService;
+        _registrationService = registrationService;
     }
 
     [AllowAnonymous]
@@ -24,6 +28,25 @@ public sealed class AuthController : ControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _authService.LoginAsync(request, cancellationToken);
+
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<OrganizationUserProfileResponse>> Me(CancellationToken cancellationToken)
+    {
+        var response = await _authService.GetCurrentUserProfileAsync(cancellationToken);
+
+        return Ok(response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost("register-organization")]
+    public async Task<ActionResult<RegisterOrganizationResponse>> RegisterOrganization(
+        RegisterOrganizationRequest request)
+    {
+        var response = await _registrationService.RegisterOrganizationAsync(request);
 
         return Ok(response);
     }
