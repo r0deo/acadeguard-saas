@@ -8,5 +8,7 @@ public sealed class LoginResponseDto
 
     public string Role { get; init; } = string.Empty;
 
+    public Guid? OrganizationId { get; init; }
+
     public AuthenticatedUserDto User { get; init; } = new();
 }
