@@ -67,9 +67,7 @@ public sealed class MinistryStandardsService : IMinistryStandardsService
         var titleEnglish = NormalizeOptional(request.TitleEnglish);
 
         EnsureHasAnyContent(titleArabic, titleEnglish, "Standard must have an Arabic or English title.");
-        await EnsureUniqueStandardNumberAsync(request.Number, id);
 
-        standard.Number = request.Number;
         standard.TitleArabic = titleArabic;
         standard.TitleEnglish = titleEnglish;
         standard.DescriptionArabic = NormalizeOptional(request.DescriptionArabic);
@@ -280,18 +278,6 @@ public sealed class MinistryStandardsService : IMinistryStandardsService
         }
 
         return branch;
-    }
-
-    private async Task EnsureUniqueStandardNumberAsync(int number, Guid excludedStandardId)
-    {
-        var exists = await _dbContext.MinistryStandards.AnyAsync(standard =>
-            standard.Number == number
-            && standard.Id != excludedStandardId);
-
-        if (exists)
-        {
-            throw new ValidationException("Standard number already exists.");
-        }
     }
 
     private async Task EnsureUniqueRequirementCodeAsync(Guid standardId, string code, Guid excludedRequirementId)
