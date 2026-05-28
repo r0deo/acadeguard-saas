@@ -63,10 +63,8 @@ public sealed class MinistryStandardsService : IMinistryStandardsService
         ValidateRequest(request);
 
         var standard = await GetStandardAsync(id, asTracking: true);
-        var titleArabic = NormalizeOptional(request.TitleArabic);
-        var titleEnglish = NormalizeOptional(request.TitleEnglish);
-
-        EnsureHasAnyContent(titleArabic, titleEnglish, "Standard must have an Arabic or English title.");
+        var titleArabic = NormalizeRequired(request.TitleArabic, "TitleArabic is required.");
+        var titleEnglish = NormalizeRequired(request.TitleEnglish, "TitleEnglish is required.");
 
         standard.TitleArabic = titleArabic;
         standard.TitleEnglish = titleEnglish;

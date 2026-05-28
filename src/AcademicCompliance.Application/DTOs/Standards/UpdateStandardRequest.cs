@@ -4,15 +4,17 @@ namespace AcademicCompliance.Application.DTOs.Standards;
 
 public sealed class UpdateStandardRequest
 {
+    [Required]
     [StringLength(250)]
-    public string? TitleArabic { get; init; }
+    public required string TitleArabic { get; init; }
 
+    [Required]
     [StringLength(250)]
-    public string? TitleEnglish { get; init; }
+    public required string TitleEnglish { get; init; }
 
     [StringLength(2000)]
-    public string? DescriptionArabic { get; init; }
+    public required string? DescriptionArabic { get; init; }
 
     [StringLength(2000)]
-    public string? DescriptionEnglish { get; init; }
+    public required string? DescriptionEnglish { get; init; }
 }
