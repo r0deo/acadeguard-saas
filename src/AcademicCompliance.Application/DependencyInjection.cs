@@ -1,7 +1,9 @@
+using AcademicCompliance.Application.Interfaces.AnalysisRequests;
 using AcademicCompliance.Application.Interfaces.Auth;
 using AcademicCompliance.Application.Interfaces.Billing;
 using AcademicCompliance.Application.Interfaces.Organizations;
 using AcademicCompliance.Application.Interfaces.Standards;
+using AcademicCompliance.Application.Services.AnalysisRequests;
 using AcademicCompliance.Application.Services.Auth;
 using AcademicCompliance.Application.Services.Billing;
 using AcademicCompliance.Application.Services.Organizations;
@@ -22,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IMinistryStandardsService, MinistryStandardsService>();
+        services.AddScoped<IAnalysisRequestService, AnalysisRequestService>();
 
         return services;
     }
