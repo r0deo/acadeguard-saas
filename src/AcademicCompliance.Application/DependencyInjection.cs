@@ -3,11 +3,13 @@ using AcademicCompliance.Application.Interfaces.Auth;
 using AcademicCompliance.Application.Interfaces.Billing;
 using AcademicCompliance.Application.Interfaces.Organizations;
 using AcademicCompliance.Application.Interfaces.Standards;
+using AcademicCompliance.Application.Interfaces.Uploads;
 using AcademicCompliance.Application.Services.AnalysisRequests;
 using AcademicCompliance.Application.Services.Auth;
 using AcademicCompliance.Application.Services.Billing;
 using AcademicCompliance.Application.Services.Organizations;
 using AcademicCompliance.Application.Services.Standards;
+using AcademicCompliance.Application.Services.Uploads;
 using AcademicCompliance.Application.Validators.Auth;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -25,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IMinistryStandardsService, MinistryStandardsService>();
         services.AddScoped<IAnalysisRequestService, AnalysisRequestService>();
+        services.AddScoped<IUploadedDocumentService, UploadedDocumentService>();
 
         return services;
     }
