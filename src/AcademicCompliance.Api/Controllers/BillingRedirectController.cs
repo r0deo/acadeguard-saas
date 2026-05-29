@@ -9,60 +9,84 @@ namespace AcademicCompliance.Api.Controllers;
 [Route("billing")]
 public sealed class BillingRedirectController : ControllerBase
 {
-    private readonly IPaymentService _paymentService;
+    private const string DefaultClientBaseUrl = "http://localhost:5173";
+    private const string DefaultSuccessPath = "/upload";
+    private const string DefaultPendingPath = "/billing";
+    private const string DefaultCancelPath = "/billing";
 
-    public BillingRedirectController(IPaymentService paymentService)
+    private readonly IPaymentService _paymentService;
+    private readonly IConfiguration _configuration;
+
+    public BillingRedirectController(
+        IPaymentService paymentService,
+        IConfiguration configuration)
     {
         _paymentService = paymentService;
+        _configuration = configuration;
     }
 
     [HttpGet("success")]
     public async Task<IActionResult> Success([FromQuery(Name = "session_id")] string? sessionId)
     {
         var result = await _paymentService.CompleteCheckoutReturnAsync(sessionId ?? string.Empty);
+        var path = result.IsActive
+            ? GetConfiguredPath("BillingRedirects:SuccessPath", DefaultSuccessPath)
+            : GetConfiguredPath("BillingRedirects:PendingPath", DefaultPendingPath);
 
-        var title = result.IsActive ? "Payment complete" : "Payment pending";
-        return Content(
-            BuildHtml(title, result.Message, result.Status),
-            "text/html");
+        return Redirect(BuildClientRedirectUrl(path, new Dictionary<string, string?>
+        {
+            ["payment"] = result.IsActive ? "success" : "pending",
+            ["subscriptionStatus"] = result.Status,
+            ["session_id"] = result.PaymentReference
+        }));
     }
 
     [HttpGet("cancel")]
     public IActionResult Cancel()
     {
-        return Content(
-            BuildHtml(
-                "Payment cancelled",
-                "Payment was cancelled. Your organization registration remains available, but the subscription is not active.",
-                "Pending"),
-            "text/html");
+        var path = GetConfiguredPath("BillingRedirects:CancelPath", DefaultCancelPath);
+
+        return Redirect(BuildClientRedirectUrl(path, new Dictionary<string, string?>
+        {
+            ["payment"] = "cancelled",
+            ["subscriptionStatus"] = "Pending"
+        }));
     }
 
-    private static string BuildHtml(string title, string message, string status)
+    private string BuildClientRedirectUrl(string path, IReadOnlyDictionary<string, string?> queryParameters)
     {
-        return $$"""
-            <!doctype html>
-            <html lang="en">
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                <title>{{title}}</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 48px; color: #172033; }
-                    main { max-width: 720px; }
-                    h1 { font-size: 28px; margin-bottom: 12px; }
-                    p { font-size: 16px; line-height: 1.5; }
-                    .status { font-weight: 700; }
-                </style>
-            </head>
-            <body>
-                <main>
-                    <h1>{{title}}</h1>
-                    <p>{{message}}</p>
-                    <p>Subscription status: <span class="status">{{status}}</span></p>
-                </main>
-            </body>
-            </html>
-            """;
+        var clientBaseUrl = GetConfiguredClientBaseUrl();
+        var builder = new UriBuilder(new Uri(new Uri(clientBaseUrl), path));
+        var query = string.Join("&", queryParameters
+            .Where(parameter => !string.IsNullOrWhiteSpace(parameter.Value))
+            .Select(parameter =>
+                $"{Uri.EscapeDataString(parameter.Key)}={Uri.EscapeDataString(parameter.Value!)}"));
+
+        builder.Query = query;
+
+        return builder.Uri.ToString();
+    }
+
+    private string GetConfiguredClientBaseUrl()
+    {
+        var configuredUrl = _configuration["ClientApp:BaseUrl"];
+        if (Uri.TryCreate(configuredUrl, UriKind.Absolute, out var clientUri)
+            && (clientUri.Scheme == Uri.UriSchemeHttp || clientUri.Scheme == Uri.UriSchemeHttps))
+        {
+            return clientUri.ToString().TrimEnd('/');
+        }
+
+        return DefaultClientBaseUrl;
+    }
+
+    private string GetConfiguredPath(string key, string fallback)
+    {
+        var configuredPath = _configuration[key];
+        if (string.IsNullOrWhiteSpace(configuredPath))
+        {
+            return fallback;
+        }
+
+        return configuredPath.StartsWith('/') ? configuredPath : $"/{configuredPath}";
     }
 }
