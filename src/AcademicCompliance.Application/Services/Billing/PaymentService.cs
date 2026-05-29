@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AcademicCompliance.Application.DTOs.Billing;
 using AcademicCompliance.Application.Interfaces;
 using AcademicCompliance.Application.Interfaces.Billing;
@@ -24,6 +25,58 @@ public sealed class PaymentService : IPaymentService
     public Task<CreateCheckoutResponse> CreateCheckoutAsync(Guid organizationId)
     {
         return _subscriptionService.CreateCheckoutAsync(organizationId);
+    }
+
+    public async Task<CheckoutReturnResponse> CompleteCheckoutReturnAsync(string paymentReference)
+    {
+        if (string.IsNullOrWhiteSpace(paymentReference))
+        {
+            throw new ValidationException("Payment reference is required.");
+        }
+
+        var normalizedPaymentReference = paymentReference.Trim();
+        var subscription = await _dbContext.Subscriptions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(subscription => subscription.PaymentReference == normalizedPaymentReference);
+
+        if (subscription is null)
+        {
+            throw new KeyNotFoundException("Checkout session was not found.");
+        }
+
+        var verification = await _paymentProvider.VerifyPaymentAsync(normalizedPaymentReference);
+        if (!verification.IsSuccessful)
+        {
+            var pendingStatus = await _subscriptionService.GetStatusAsync(subscription.OrganizationId);
+
+            return new CheckoutReturnResponse
+            {
+                OrganizationId = subscription.OrganizationId,
+                PaymentReference = normalizedPaymentReference,
+                Status = pendingStatus.Status,
+                IsActive = pendingStatus.IsActive,
+                SubscriptionEndDate = pendingStatus.EndDate,
+                Message = "Payment has not been completed yet."
+            };
+        }
+
+        await _subscriptionService.ActivateSubscriptionAfterPaymentAsync(
+            subscription.OrganizationId,
+            normalizedPaymentReference,
+            verification.Amount,
+            verification.Currency);
+
+        var activeStatus = await _subscriptionService.GetStatusAsync(subscription.OrganizationId);
+
+        return new CheckoutReturnResponse
+        {
+            OrganizationId = subscription.OrganizationId,
+            PaymentReference = normalizedPaymentReference,
+            Status = activeStatus.Status,
+            IsActive = activeStatus.IsActive,
+            SubscriptionEndDate = activeStatus.EndDate,
+            Message = "Payment verified. Subscription is active."
+        };
     }
 
     public async Task HandleWebhookAsync(string payload, string signature)

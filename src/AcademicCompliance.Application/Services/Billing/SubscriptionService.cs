@@ -181,21 +181,29 @@ public sealed class SubscriptionService : ISubscriptionService
             _dbContext.Subscriptions.Add(subscription);
         }
 
-        var otherActiveSubscriptions = await _dbContext.Subscriptions
-            .Where(existingSubscription =>
-                existingSubscription.OrganizationId == organizationId
-                && existingSubscription.Id != subscription.Id
-                && existingSubscription.Status == SubscriptionStatus.Active)
-            .ToListAsync();
+        var subscriptionIsAlreadyActive = subscription.Status == SubscriptionStatus.Active
+            && subscription.EndDate.HasValue
+            && subscription.EndDate.Value > now;
 
-        foreach (var activeSubscription in otherActiveSubscriptions)
+        if (!subscriptionIsAlreadyActive)
         {
-            activeSubscription.Status = SubscriptionStatus.Cancelled;
+            var otherActiveSubscriptions = await _dbContext.Subscriptions
+                .Where(existingSubscription =>
+                    existingSubscription.OrganizationId == organizationId
+                    && existingSubscription.Id != subscription.Id
+                    && existingSubscription.Status == SubscriptionStatus.Active)
+                .ToListAsync();
+
+            foreach (var activeSubscription in otherActiveSubscriptions)
+            {
+                activeSubscription.Status = SubscriptionStatus.Cancelled;
+            }
+
+            subscription.Status = SubscriptionStatus.Active;
+            subscription.StartDate = now;
+            subscription.EndDate = now.AddMonths(3);
         }
 
-        subscription.Status = SubscriptionStatus.Active;
-        subscription.StartDate = now;
-        subscription.EndDate = now.AddMonths(3);
         subscription.Amount = amount;
         subscription.Currency = normalizedCurrency;
         subscription.PaymentProvider = PaymentProvider.Stripe;
@@ -223,7 +231,7 @@ public sealed class SubscriptionService : ISubscriptionService
         payment.Status = PaymentStatus.Paid;
         payment.Amount = amount;
         payment.Currency = normalizedCurrency;
-        payment.PaidAt = now;
+        payment.PaidAt ??= now;
 
         await SaveChangesAsync();
     }
