@@ -21,5 +21,7 @@ public interface IApplicationDbContext
 
     DbSet<AnalysisRequest> AnalysisRequests { get; }
 
+    DbSet<UploadedDocument> UploadedDocuments { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

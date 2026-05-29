@@ -4,6 +4,7 @@ obj/
 .vscode/
 .dotnet_home/
 .nuget/
+uploads/
 
 *.user
 *.suo

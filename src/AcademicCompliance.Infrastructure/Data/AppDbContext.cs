@@ -27,6 +27,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<AnalysisRequest> AnalysisRequests => Set<AnalysisRequest>();
 
+    public DbSet<UploadedDocument> UploadedDocuments => Set<UploadedDocument>();
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyEntityTimestamps();
