@@ -5,6 +5,7 @@ obj/
 .dotnet_home/
 .nuget/
 /uploads/
+/src/AcademicCompliance.Api/uploads/
 
 *.user
 *.suo
