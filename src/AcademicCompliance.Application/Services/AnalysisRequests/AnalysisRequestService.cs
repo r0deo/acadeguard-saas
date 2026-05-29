@@ -261,9 +261,9 @@ public sealed class AnalysisRequestService : IAnalysisRequestService
             return;
         }
 
-        if (nextStatus is AnalysisRequestStatus.Processing)
+        if (IsSystemManagedStatus(nextStatus))
         {
-            throw new ValidationException("Processing status is system-managed and cannot be set manually.");
+            throw new ValidationException($"{nextStatus} status is system-managed and cannot be set manually.");
         }
 
         if (currentStatus is AnalysisRequestStatus.Cancelled)
@@ -280,6 +280,13 @@ public sealed class AnalysisRequestService : IAnalysisRequestService
         {
             throw new ValidationException("Submitted analysis requests cannot return to draft.");
         }
+    }
+
+    private static bool IsSystemManagedStatus(AnalysisRequestStatus status)
+    {
+        return status is AnalysisRequestStatus.FilesUploaded
+            or AnalysisRequestStatus.Parsing
+            or AnalysisRequestStatus.Processing;
     }
 
     private static AnalysisRequestResponse MapResponse(AnalysisRequest request)

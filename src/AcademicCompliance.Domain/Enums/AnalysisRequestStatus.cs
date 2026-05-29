@@ -4,11 +4,13 @@ public enum AnalysisRequestStatus
 {
     Draft = 1,
     Submitted = 2,
-    Processing = 3,
-    ReviewRequired = 4,
-    ReportDrafted = 5,
-    Approved = 6,
-    Sent = 7,
-    Failed = 8,
-    Cancelled = 9
+    FilesUploaded = 3,
+    Parsing = 4,
+    Processing = 5,
+    ReviewRequired = 6,
+    ReportDrafted = 7,
+    Approved = 8,
+    Sent = 9,
+    Failed = 10,
+    Cancelled = 11
 }
