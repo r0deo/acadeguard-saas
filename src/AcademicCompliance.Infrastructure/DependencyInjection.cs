@@ -1,8 +1,10 @@
 using AcademicCompliance.Application.Interfaces;
 using AcademicCompliance.Application.Interfaces.Billing;
+using AcademicCompliance.Application.Interfaces.Uploads;
 using AcademicCompliance.Domain.Entities;
 using AcademicCompliance.Infrastructure.Data;
 using AcademicCompliance.Infrastructure.Payment;
+using AcademicCompliance.Infrastructure.Storage;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +45,7 @@ public static class DependencyInjection
             provider.GetRequiredService<AppDbContext>());
 
         services.AddScoped<IPaymentProvider, StripePaymentProvider>();
+        services.AddScoped<IFileStorageService, LocalFileStorageService>();
 
         return services;
     }
