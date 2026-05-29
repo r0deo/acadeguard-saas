@@ -261,6 +261,11 @@ public sealed class AnalysisRequestService : IAnalysisRequestService
             return;
         }
 
+        if (nextStatus is AnalysisRequestStatus.Processing)
+        {
+            throw new ValidationException("Processing status is system-managed and cannot be set manually.");
+        }
+
         if (currentStatus is AnalysisRequestStatus.Cancelled)
         {
             throw new ValidationException("Cancelled analysis requests cannot change status.");
