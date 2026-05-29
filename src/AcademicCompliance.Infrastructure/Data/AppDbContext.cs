@@ -25,6 +25,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<MinistryBranch> MinistryBranches => Set<MinistryBranch>();
 
+    public DbSet<AnalysisRequest> AnalysisRequests => Set<AnalysisRequest>();
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         ApplyEntityTimestamps();

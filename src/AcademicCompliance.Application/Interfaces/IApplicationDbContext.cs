@@ -19,5 +19,7 @@ public interface IApplicationDbContext
 
     DbSet<MinistryBranch> MinistryBranches { get; }
 
+    DbSet<AnalysisRequest> AnalysisRequests { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
